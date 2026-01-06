@@ -1,0 +1,27 @@
+<!-- Modal de detalle del registro -->
+@if (showDetailModal() && selectedRecord()) {
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="cerrarDetailModal()">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+      <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-800 z-10">
+        <h3 class="text-xl font-semibold text-slate-800 dark:text-white">Detalle del Registro de Asistencia</h3>
+        <button (click)="cerrarDetailModal()" class="px-3 py-2 text-sm bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded transition-colors">Cerrar</button>
+      </div>
+      
+      <div class="p-6 space-y-6">
+        <app-attendance-confirmation [record]="selectedRecord()"></app-attendance-confirmation>
+        
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-700">
+          <p class="text-sm text-slate-600 dark:text-slate-400">
+            <strong>ID de Registro:</strong> {{ selectedRecord()!.id }}<br>
+            <strong>Dispositivo:</strong> {{ selectedRecord()!.deviceInfo.userAgent }}<br>
+            <strong>Precisión GPS:</strong> {{ selectedRecord()!.geolocation.accuracy | number:'1.0-0' }} metros<br>
+            <strong>Estado de Radio:</strong> 
+            <span [class]="selectedRecord()!.geolocation.withinRadius ? 'text-green-600 font-semibold' : 'text-orange-600 font-semibold'">
+              {{ selectedRecord()!.geolocation.withinRadius ? '✓ Dentro del radio permitido' : '⚠ Fuera del radio permitido' }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+}

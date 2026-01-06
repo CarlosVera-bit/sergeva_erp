@@ -1,0 +1,5 @@
+/* Navbar styling - minimal and clean */
+:host {
+  display: block;
+  width: 100%;
+}

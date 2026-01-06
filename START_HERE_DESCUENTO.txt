@@ -1,0 +1,305 @@
+┌────────────────────────────────────────────────────────────────────────┐
+│                                                                        │
+│  ✨ FEATURE COMPLETADO: SISTEMA DE DESCUENTOS EN COTIZACIONES ✨      │
+│                                                                        │
+│  Fecha: 27 de Diciembre 2025                                          │
+│  Módulo: Cotizaciones                                                 │
+│  Estado: ✅ COMPLETADO Y LISTO PARA USAR                              │
+│                                                                        │
+└────────────────────────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 ¿QUÉ SE AGREGÓ?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Checkbox "Aplicar Descuento"
+   └─ Toggle para habilitar/deshabilitar el descuento
+
+✅ Dos Tipos de Descuento
+   ├─ Monto Fijo ($) - Cantidad exacta
+   └─ Porcentaje (%) - % sobre el total
+
+✅ Cálculos Automáticos
+   └─ Se actualizan en tiempo real sin necesidad de actualizar
+
+✅ Visualización en PDF
+   └─ Descuento aparece en color naranja entre IVA y TOTAL
+
+✅ Base de Datos
+   └─ Se guarda el descuento y tipo para futuras ediciones
+
+✅ Validaciones
+   └─ Previene valores inválidos (negativos, >100%, etc)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 CÓMO USAR (3 PASOS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PASO 1: Ejecutar SQL (1 minuto)
+────────────────────────────────
+
+Abre phpMyAdmin y ejecuta:
+
+┌─────────────────────────────────────────────────────────────┐
+│ ALTER TABLE cotizaciones                                    │
+│ ADD COLUMN descuento DECIMAL(12,2) NOT NULL DEFAULT 0.00   │
+│ ADD COLUMN tipo_descuento ENUM('monto', 'porcentaje') ...  │
+│ DEFAULT 'monto' AFTER descuento;                            │
+└─────────────────────────────────────────────────────────────┘
+
+✅ LISTO! La base de datos está actualizada.
+
+
+PASO 2: El código ya está listo
+────────────────────────────────
+
+✅ Frontend actualizado (quote-create.component.ts)
+✅ Backend actualizado (cotizaciones.php)
+✅ PDF actualizado (pdf.service.ts)
+
+⚠️ Solo recarga la página (Ctrl+Shift+R) para descargar cambios
+
+
+PASO 3: Prueba
+──────────────
+
+1. Abre Cotizaciones → Crear Nueva
+2. Agrega items
+3. Marca ☑ Aplicar Descuento
+4. Selecciona tipo ($ o %)
+5. Ingresa valor
+6. ¡Guarda y genera PDF!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 EJEMPLO DE USO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ANTES:
+┌────────────────────────┐
+│ Subtotal:    $1,000.00 │
+│ IVA (15%):   $  150.00 │
+├────────────────────────┤
+│ TOTAL:       $1,150.00 │
+└────────────────────────┘
+
+DESPUÉS (con 10% descuento):
+┌────────────────────────┐
+│ Subtotal:    $1,000.00 │
+│ IVA (15%):   $  150.00 │
+│ Descuento:   -$ 115.00 │ ← Color naranja 🟠
+├────────────────────────┤
+│ TOTAL:       $1,035.00 │
+└────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 ARCHIVOS MODIFICADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Frontend:
+  ✏️  src/components/quotes/quote-create.component.ts (871 líneas)
+       └─ Checkbox, campos de descuento, cálculos
+
+Backend:
+  ✏️  backend/api/cotizaciones.php (287 líneas)
+       └─ POST y PUT actualizados para guardar descuento
+
+PDF:
+  ✏️  src/services/pdf.service.ts (214 líneas)
+       └─ Interfaz CotizacionPDF y generación con descuento
+
+BD:
+  🗄️  Tabla cotizaciones: +2 columnas (descuento, tipo_descuento)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 DOCUMENTACIÓN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Archivo                              │ Contenido
+─────────────────────────────────────┼─────────────────────────────────
+QUICKSTART_DESCUENTO.md              │ 🚀 Setup en 5 minutos
+FEATURE_DESCUENTO_COMPLETO.md        │ 📖 Resumen general completo
+INSTRUCCIONES_DESCUENTO.md           │ 📘 Guía paso a paso detallada
+DESCUENTO_VISUAL_GUIDE.md            │ 🎨 Interfaz visual y mockups
+DESCUENTO_COTIZACIONES_README.md     │ 📋 Documentación técnica
+CODIGO_CAMBIOS_DESCUENTO.ts          │ 💻 Código modificado comentado
+sql/add_descuento_to_cotizaciones.sql│ 🗄️  Script SQL simple
+sql/IMPLEMENTACION_DESCUENTO.sql     │ 🗄️  Scripts con validación
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✨ CARACTERÍSTICAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                         INTERFAZ                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ ☑ Aplicar Descuento                                                  │
+│ ┌──────────────────────────────────────────┐                        │
+│ │ Tipo:    [Monto Fijo ($)  ▼]             │ (Selector)            │
+│ │ Valor:   [_____________]                 │ (Input numérico)      │
+│ │          ↑ Validaciones automáticas       │                      │
+│ └──────────────────────────────────────────┘                        │
+│                                                                       │
+│ Descuento (-): -$  115.00     ← Color naranja 🟠                     │
+│ ─────────────────────────────                                        │
+│ TOTAL:         $ 1,035.00     ← Actualizado automáticamente          │
+└─────────────────────────────────────────────────────────────────────┘
+
+Características:
+  ✅ Checkbox toggle intuitivo
+  ✅ Selector dropdown para tipo
+  ✅ Input validado en tiempo real
+  ✅ Muestra descuento calculado
+  ✅ Total se actualiza automáticamente
+  ✅ Compatible con dark mode
+  ✅ Responsive (móvil y desktop)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 VALIDACIONES IMPLEMENTADAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Descuento NO puede ser negativo
+   └─ min="0"
+
+✅ Porcentaje máximo es 100%
+   └─ [max]="formulario.tipoDescuento === 'porcentaje' ? 100 : ..."
+
+✅ Monto NO puede exceder el total
+   └─ [max]="total"
+
+✅ Campos ocultos cuando checkbox está desmarcado
+   └─ @if (formulario.tienDescuento) { ... }
+
+✅ Se limpia al cambiar tipo
+   └─ (change)="formulario.descuento = 0"
+
+✅ Cálculos en tiempo real
+   └─ Sin necesidad de actualizar o hacer click
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 FLUJO DE DATOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CREAR COTIZACIÓN:
+  Usuario → Interfaz → Cálculos → API → Base de Datos
+           ✅ Descuento
+
+EDITAR COTIZACIÓN:
+  Base de Datos → API → Interfaz → Cálculos → API → Base de Datos
+  ✅ Carga descuento existente
+
+GENERAR PDF:
+  Descuento → jsPDF → Color naranja → PDF descargado
+  ✅ Línea visible en el documento
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🧮 CÁLCULO MATEMÁTICO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+MONTO FIJO:
+  TOTAL_FINAL = SUBTOTAL + IVA - DESCUENTO_FIJO
+  Ejemplo: $1000 + $150 - $100 = $1050 ✅
+
+PORCENTAJE:
+  DESCUENTO_REAL = (SUBTOTAL + IVA) × (PORCENTAJE / 100)
+  TOTAL_FINAL = SUBTOTAL + IVA - DESCUENTO_REAL
+  
+  Ejemplo: 10% de $1150 = $115
+  Total: $1150 - $115 = $1035 ✅
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 ESTADÍSTICAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Métrica                    │ Cantidad
+───────────────────────────┼──────────
+Archivos modificados       │ 3
+Archivos de documentación  │ 6
+Líneas de código nuevas    │ ~150
+Métodos actualizados       │ 4
+Columnas BD nuevas         │ 2
+Validaciones agregadas     │ 6
+Tiempo de setup            │ 5 min
+Complejidad                │ BAJA ✨
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ RESUMEN RÁPIDO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Copia y ejecuta el SQL en phpMyAdmin
+2. Recarga tu navegador (Ctrl+Shift+R)
+3. ¡Prueba el descuento!
+
+Todo lo demás YA ESTÁ HECHO ✅
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❓ PREGUNTAS FRECUENTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+P: ¿Se guarda el descuento en la BD?
+R: ✅ Sí, en las columnas "descuento" y "tipo_descuento"
+
+P: ¿Puedo editar el descuento después?
+R: ✅ Sí, abre la cotización y cambia el valor
+
+P: ¿El descuento aparece en el PDF?
+R: ✅ Sí, en color naranja entre IVA y TOTAL
+
+P: ¿Funciona en modo oscuro?
+R: ✅ Sí, está completamente compatible
+
+P: ¿Qué pasa si no marco el checkbox?
+R: ✅ El descuento se oculta y el total es normal
+
+P: ¿Puedo tener 150% de descuento?
+R: ❌ No, validaciones previenen valores inválidos
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 PRÓXIMOS PASOS (OPCIONALES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Mejoras futuras que podrías agregar:
+  🎁 Códigos de cupón (VERANO2025 = 20%)
+  📦 Descuentos automáticos por cantidad
+  👤 Descuentos por tipo de cliente
+  📊 Reportes de descuentos aplicados
+  🔔 Alertas para descuentos muy altos
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 ¡LISTO PARA USAR!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Código frontend   - LISTO
+✅ Código backend    - LISTO
+✅ Generación PDF    - LISTO
+✅ Documentación     - COMPLETA
+
+Solo falta: Ejecutar el SQL ⏱️
+
+Tiempo total setup: ~5 minutos 🎉
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Para más detalles:
+  📖 Lee: FEATURE_DESCUENTO_COMPLETO.md
+  🚀 Start: QUICKSTART_DESCUENTO.md
+  📘 Guía: INSTRUCCIONES_DESCUENTO.md
+
+¡Que disfrutes el nuevo feature! 🎉
+
+Created: 27/12/2025
+Status: ✅ PRODUCTION READY

@@ -1,0 +1,111 @@
+<div
+  class="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 px-4 transition-all duration-500">
+  <div class="w-full max-w-md animate-scale-in">
+    <!-- Card principal -->
+    <div
+      class="bg-white dark:bg-slate-800 shadow-2xl rounded-3xl p-8 border border-slate-100 dark:border-slate-700 backdrop-blur-sm">
+
+      <!-- Logo y título -->
+      <div class="flex flex-col items-center mb-8">
+        <div class="mb-4 transform hover:scale-105 transition-transform duration-300">
+          <img src="assets/images/logo.png" alt="Logo Sergeva" class="h-24 w-auto object-contain">
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="loginForm" (ngSubmit)="login()" class="space-y-5">
+
+        <!-- Email -->
+        <div class="space-y-2">
+          <label for="email" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+            Correo Electrónico
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207">
+                </path>
+              </svg>
+            </div>
+            <input type="email" id="email" formControlName="email"
+              class="block w-full pl-10 pr-3 py-3 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+              placeholder="tu@email.com" required>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-2">
+          <label for="password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+            Contraseña
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                </path>
+              </svg>
+            </div>
+            <input type="password" id="password" formControlName="password"
+              class="block w-full pl-10 pr-3 py-3 bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+              placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <!-- Error message -->
+        @if (error()) {
+        <div class="p-4 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 rounded-lg animate-slide-in">
+          <div class="flex items-center">
+            <svg class="h-5 w-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clip-rule="evenodd"></path>
+            </svg>
+            <p class="text-sm font-medium text-red-800 dark:text-red-200">{{ error() }}</p>
+          </div>
+        </div>
+        }
+
+        <!-- Submit button -->
+        <button type="submit" [disabled]="loginForm.invalid || isLoading()"
+          class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+          @if (isLoading()) {
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          <span>Ingresando...</span>
+          } @else {
+          <span>Iniciar Sesión</span>
+          }
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="mt-6 flex items-center">
+        <div class="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
+        <div class="px-3 text-xs text-slate-500 dark:text-slate-400">Acceso seguro</div>
+        <div class="flex-1 border-t border-slate-200 dark:border-slate-700"></div>
+      </div>
+
+      <!-- Security badge -->
+      <div class="mt-4 flex items-center justify-center space-x-2 text-xs text-slate-500 dark:text-slate-400">
+        <svg class="h-4 w-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd"
+            d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clip-rule="evenodd"></path>
+        </svg>
+        <span>Conexión cifrada y segura</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-sm text-slate-600 dark:text-slate-400 mt-8">
+      © 2025 Sergeva S.A. Todos los derechos reservados.
+    </p>
+  </div>
+</div>

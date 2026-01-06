@@ -1,0 +1,292 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Integración Contable con Contifico</h1>
+    <button (click)="openConfigModal()"
+      class="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg flex items-center gap-2 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Configurar API
+    </button>
+  </div>
+
+  @if (dbService.connected()) {
+    <!-- Tarjetas de Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Estado de Conexión -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Estado Contifico</p>
+            <p class="text-2xl font-bold mt-2" [class]="syncStatus() === 'Conectado' ? 'text-green-500' : 'text-red-500'">
+              {{ syncStatus() }}
+            </p>
+          </div>
+          <div class="p-3 rounded-full" [class]="syncStatus() === 'Conectado' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'">
+            <svg class="w-8 h-8" [class]="syncStatus() === 'Conectado' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              @if (syncStatus() === 'Conectado') {
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              } @else {
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              }
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Última Sincronización -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Última Sincronización</p>
+            <p class="text-lg font-bold text-slate-900 dark:text-white mt-2">{{ lastSync() }}</p>
+          </div>
+          <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30">
+            <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sincronizaciones Exitosas -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Exitosas</p>
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">{{ successfulSyncs() }}</p>
+          </div>
+          <div class="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
+            <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sincronizaciones Fallidas -->
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 border border-slate-200 dark:border-slate-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Con Errores</p>
+            <p class="text-2xl font-bold text-red-600 dark:text-red-400 mt-2">{{ failedSyncs() }}</p>
+          </div>
+          <div class="p-3 rounded-full bg-red-100 dark:bg-red-900/30">
+            <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón de Sincronización -->
+    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl shadow-lg p-6 mb-8 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-xl font-bold mb-2">Sincronizar con Contifico</h3>
+          <p class="text-primary-100">Sincronice todas las órdenes de trabajo pendientes con Contifico</p>
+        </div>
+        <button (click)="forceSyncAll()" [disabled]="isSyncing()"
+          class="px-6 py-3 bg-white text-primary-600 rounded-lg hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2 transition-all">
+          @if (isSyncing()) {
+            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Sincronizando...
+          } @else {
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Forzar Sincronización
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Historial de Sincronización -->
+    @if (isLoading()) {
+      <div class="flex flex-col justify-center items-center p-16 bg-white dark:bg-slate-800 rounded-xl shadow-md">
+        <svg class="animate-spin h-12 w-12 text-primary-500 mb-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-lg font-medium text-slate-600 dark:text-slate-300">Cargando historial...</span>
+      </div>
+    } @else {
+      <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Historial de Sincronización</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Registro completo de todas las sincronizaciones con Contifico</p>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">ID</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Orden Trabajo</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Documento</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Fecha</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Estado</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Tipo</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+              @for (log of syncLogs(); track log.id_integracion) {
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm font-medium text-slate-900 dark:text-white">SYNC-{{ log.id_integracion }}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-slate-600 dark:text-slate-400">{{ log.id_ot ? 'OT-' + log.id_ot : 'N/A' }}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm font-mono text-slate-600 dark:text-slate-400">{{ log.numero_documento_contifico || 'N/A' }}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-slate-600 dark:text-slate-400">{{ formatDate(log.fecha_integracion || '') }}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold" [class]="getStatusClass(log.estado_sincronizacion)">
+                      {{ getStatusIcon(log.estado_sincronizacion) }} {{ formatStatus(log.estado_sincronizacion) }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-slate-600 dark:text-slate-400">{{ log.tipo_documento || 'FACTURA' }}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    @if (log.estado_sincronizacion === 'error') {
+                      <button (click)="retrySync(log)"
+                        class="text-sm text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 font-medium">
+                        Reintentar
+                      </button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="px-6 py-12 text-center">
+                    <div class="flex flex-col items-center">
+                      <svg class="w-16 h-16 text-slate-300 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                      <p class="text-lg font-medium text-slate-500 dark:text-slate-400">No hay registros de sincronización</p>
+                      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Las sincronizaciones aparecerán aquí</p>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+  } @else {
+    <!-- Sin Conexión -->
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md p-12 text-center border border-slate-200 dark:border-slate-700">
+      <svg class="mx-auto h-16 w-16 text-slate-400 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Conexión Requerida</h3>
+      <p class="text-slate-600 dark:text-slate-400 mb-6">Por favor, conéctese a la base de datos para usar la integración con Contifico</p>
+      <button class="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+        Configurar Conexión
+      </button>
+    </div>
+  }
+</div>
+
+<!-- Modal de Configuración -->
+@if (showConfigModal()) {
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" (click)="closeConfigModal()">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-2xl w-full" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+        <div>
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Configuración de Contifico</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Configure las credenciales de acceso a la API</p>
+        </div>
+        <button (click)="closeConfigModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6 space-y-6">
+        <!-- URL API -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            URL de la API de Contifico
+          </label>
+          <input type="text" [(ngModel)]="credentials().apiUrl"
+            class="w-full px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white"
+            placeholder="https://api.contifico.com/sistema/api/v1">
+        </div>
+
+        <!-- Usuario -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Usuario / Email
+          </label>
+          <input type="text" [(ngModel)]="credentials().username"
+            class="w-full px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white"
+            placeholder="usuario@empresa.com">
+        </div>
+
+        <!-- Contraseña -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Contraseña / API Key
+          </label>
+          <input type="password" [(ngModel)]="credentials().password"
+            class="w-full px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white"
+            placeholder="••••••••">
+        </div>
+
+        <!-- Info Box -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div class="flex gap-3">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div class="text-sm text-blue-800 dark:text-blue-300">
+              <p class="font-medium mb-1">Información importante:</p>
+              <ul class="list-disc list-inside space-y-1">
+                <li>Las credenciales se almacenan localmente en su navegador</li>
+                <li>Puede obtener sus credenciales desde el panel de Contifico</li>
+                <li>La URL por defecto es: https://api.contifico.com/sistema/api/v1</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex gap-3 justify-end p-6 border-t border-slate-200 dark:border-slate-700">
+        <button (click)="closeConfigModal()"
+          class="px-6 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors">
+          Cancelar
+        </button>
+        <button (click)="saveCredentials()" [disabled]="isLoading()"
+          class="px-6 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center gap-2">
+          @if (isLoading()) {
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Probando...
+          } @else {
+            Probar Conexión
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,767 @@
+<div class="p-4 md:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+
+  <!-- ============================================ -->
+  <!-- HEADER: Título y botones de acción -->
+  <!-- ============================================ -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-3">
+    <div>
+      <h1 class="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100">Órdenes de Trabajo</h1>
+      <p class="text-gray-500 dark:text-gray-400 text-xs md:text-sm mt-1">Gestiona y supervisa las órdenes activas</p>
+    </div>
+    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+      <!-- Botón Nueva Orden -->
+      <button (click)="openNewOrderModal()"
+        class="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center text-sm md:text-base transition shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2" viewBox="0 0 20 20"
+          fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+            clip-rule="evenodd" />
+        </svg>
+        <span class="hidden sm:inline">Nueva Orden</span>
+        <span class="sm:hidden">Nueva</span>
+      </button>
+      <!-- Botón Exportar CSV -->
+      @if (isAdmin()) {
+      <button (click)="exportToCsv()"
+        class="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 flex items-center justify-center text-sm md:text-base transition shadow-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2" viewBox="0 0 20 20"
+          fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+            clip-rule="evenodd" />
+        </svg>
+        <span class="hidden sm:inline">Exportar</span>
+        <span class="sm:hidden">CSV</span>
+      </button>
+      }
+      <!-- Botón Recargar -->
+      <button (click)="recargar()"
+        class="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 flex items-center justify-center text-sm md:text-base transition shadow-sm"
+        title="Recargar">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd"
+            d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+            clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="bg-white dark:bg-slate-800 p-3 md:p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
+
+    <div class="md:col-span-2">
+      <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Buscar</label>
+      <input type="text" placeholder="Buscar por OT, cliente..."
+        class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+        [value]="busqueda()" (input)="cambiarBusqueda($any($event.target).value)">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estado</label>
+      <select
+        class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+        [value]="filtroEstado()" (change)="cambiarFiltroEstado($any($event.target).value)">
+        <option value="todos">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="en_proceso">En Proceso</option>
+        <option value="pausada">Pausada</option>
+        <option value="completada">Completada</option>
+        <option value="cancelada">Cancelada</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Prioridad</label>
+      <select
+        class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
+        [value]="filtroPrioridad()" (change)="cambiarFiltroPrioridad($any($event.target).value)">
+        <option value="todos">Todas</option>
+        <option value="alta">Alta</option>
+        <option value="media">Media</option>
+        <option value="baja">Baja</option>
+        <option value="urgente">Urgente</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+  <div class="flex justify-center items-center p-8 bg-white dark:bg-slate-800 rounded-lg shadow-md">
+    <svg class="animate-spin h-8 w-8 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+      </path>
+    </svg>
+    <span class="ml-4 text-gray-600 dark:text-gray-300">Cargando órdenes...</span>
+  </div>
+  }
+
+  @if (error()) {
+  <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border border-red-200">
+    {{ error() }}
+  </div>
+  }
+
+  @if (!isLoading() && !error()) {
+  <div class="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden">
+    <!-- Desktop table view -->
+    <div class="hidden md:block overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-slate-100 dark:bg-slate-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="px-4 lg:px-6 py-3">N° OT</th>
+            <th scope="col" class="px-4 lg:px-6 py-3">Cliente</th>
+            <th scope="col" class="px-4 lg:px-6 py-3">Cotización</th>
+            <th scope="col" class="px-4 lg:px-6 py-3">Total OT</th>
+            <!-- <th scope="col" class="px-4 lg:px-6 py-3">Proyecto</th> -->
+            <!-- <th scope="col" class="px-4 lg:px-6 py-3">Descripción</th> -->
+            <th scope="col" class="px-4 lg:px-6 py-3">Supervisor</th>
+            <th scope="col" class="px-4 lg:px-6 py-3">Fechas</th>
+            <th scope="col" class="px-4 lg:px-6 py-3">Estado</th>
+            <th scope="col" class="px-4 lg:px-6 py-3">Prioridad</th>
+            <th scope="col" class="px-4 lg:px-6 py-3">Factura</th>
+            <th scope="col" class="px-4 lg:px-6 py-3 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (orden of ordenesPaginadas(); track orden.id_ot) {
+          <tr
+            class="bg-white border-b dark:bg-slate-800 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600">
+            <td class="px-4 lg:px-6 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+              {{ orden.numero_ot }}
+            </td>
+
+            <td class="px-4 lg:px-6 py-3">
+              <div class="font-medium text-gray-900 dark:text-white">{{ orden.cliente || 'Sin Cliente' }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{ orden.ubicacion_trabajo || '-' }}</div>
+            </td>
+
+            <td class="px-4 lg:px-6 py-3">
+              @if (orden.numero_cotizacion) {
+              <button (click)="openQuoteModal(orden.id_cotizacion)"
+                class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium hover:underline cursor-pointer bg-transparent border-0 p-0">
+                {{ orden.numero_cotizacion }}
+              </button>
+              } @else {
+              <span class="text-gray-400 dark:text-gray-500 text-xs italic">N/A</span>
+              }
+            </td>
+
+            <td class="px-4 lg:px-6 py-3 font-medium text-gray-900 dark:text-white">
+              {{ (orden.total_ot || 0) | currency }}
+            </td>
+
+            <!-- <td class="px-4 lg:px-6 py-3">
+                  @if (orden.id_proyecto) {
+                    <button (click)="openProjectModal(orden.id_proyecto)"
+                       class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium hover:underline cursor-pointer bg-transparent border-0 p-0 max-w-[150px] truncate block"
+                       title="{{ orden.nombre_proyecto }}">
+                      {{ orden.nombre_proyecto }}
+                    </button>
+                  } @else {
+                    <span class="text-gray-400 dark:text-gray-500 text-xs italic">N/A</span>
+                  }
+                </td> -->
+
+            <!-- <td class="px-4 lg:px-6 py-3 max-w-xs truncate" title="{{ orden.descripcion_trabajo }}">
+                  <span class="text-gray-700 dark:text-gray-300">{{ orden.descripcion_trabajo }}</span>
+                </td> -->
+
+            <td class="px-4 lg:px-6 py-3">
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 flex items-center justify-center text-xs font-bold">
+                  {{ (orden.supervisor || '?').charAt(0).toUpperCase() }}
+                </div>
+                <span class="dark:text-gray-300">{{ orden.supervisor || '-' }}</span>
+              </div>
+            </td>
+
+            <td class="px-4 lg:px-6 py-3 whitespace-nowrap text-xs">
+              <div><span class="font-semibold">Inicio:</span> {{ formatearFecha(orden.fecha_inicio) }}</div>
+              <div><span class="font-semibold">Fin:</span> {{ formatearFecha(orden.fecha_fin_estimada) }}</div>
+            </td>
+
+            <td class="px-4 lg:px-6 py-3">
+              <div class="relative inline-block">
+                <select [(ngModel)]="orden.estado" (change)="updateEstado(orden)"
+                  class="px-2 py-1 text-xs font-semibold rounded-full border-0 focus:ring-2 focus:ring-primary-500 cursor-pointer appearance-none pr-8"
+                  [class]="getStatusClass(orden.estado)">
+                  <option value="pendiente">Pendiente</option>
+                  <option value="en_proceso">En Proceso</option>
+                  <option value="pausada">Pausada</option>
+                  <option value="completada">Completada</option>
+                  <option value="cancelada">Cancelada</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-current">
+                  <svg class="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
+            </td>
+
+            <td class="px-4 lg:px-6 py-3">
+              @if (orden.prioridad) {
+              <div class="relative inline-block">
+                <select [(ngModel)]="orden.prioridad" (change)="updatePrioridad(orden)"
+                  class="px-2 py-1 text-xs font-semibold rounded-full border-0 focus:ring-2 focus:ring-primary-500 cursor-pointer appearance-none pr-8"
+                  [class]="getPriorityClass(orden.prioridad)">
+                  <option value="baja">Baja</option>
+                  <option value="media">Media</option>
+                  <option value="alta">Alta</option>
+                  <option value="urgente">Urgente</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-current">
+                  <svg class="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
+              } @else {
+              <div class="relative inline-block">
+                <select [(ngModel)]="orden.prioridad" (change)="updatePrioridad(orden)"
+                  class="px-2 py-1 text-xs font-semibold rounded-full border-0 focus:ring-2 focus:ring-primary-500 cursor-pointer appearance-none pr-8 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                  <option [ngValue]="null">Sin prioridad</option>
+                  <option value="baja">Baja</option>
+                  <option value="media">Media</option>
+                  <option value="alta">Alta</option>
+                  <option value="urgente">Urgente</option>
+                </select>
+                <div
+                  class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600 dark:text-gray-300">
+                  <svg class="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
+              }
+            <td class="px-4 lg:px-6 py-3">
+              <div class="relative inline-block">
+                <select [(ngModel)]="orden.estado_factura" (change)="updateEstadoFactura(orden)"
+                  class="px-2 py-1 text-xs font-semibold rounded-full border-0 focus:ring-2 focus:ring-primary-500 cursor-pointer appearance-none pr-8"
+                  [class]="getInvoiceStatusClass(orden.estado_factura)">
+                  <option value="pendiente">Pendiente</option>
+                  <option value="pagada">Pagada</option>
+                  <option value="anulada">Anulada</option>
+
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-current">
+                  <svg class="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
+            </td>
+
+            <td class="px-4 lg:px-6 py-3 text-right">
+              <div class="flex justify-end gap-2">
+                <button (click)="viewOrder(orden)"
+                  class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                  title="Ver Detalles">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+                <button (click)="editOrder(orden)"
+                  class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                  title="Editar">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button (click)="deleteOrder(orden)"
+                  class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                  title="Eliminar">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          } @empty {
+          <tr>
+            <td colspan="9" class="px-4 lg:px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+              No se encontraron órdenes que coincidan con los filtros.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile card view -->
+    <div class="md:hidden">
+      <div class="divide-y divide-gray-100 dark:divide-gray-700">
+        @for (orden of ordenesPaginadas(); track orden.id_ot) {
+        <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <div class="flex justify-between items-start mb-2">
+            <div class="font-medium text-gray-900 dark:text-gray-100">{{ orden.numero_ot }}</div>
+            <span [class]="'px-2 py-1 rounded text-xs font-medium ' + getStatusClass(orden.estado)">
+              {{ formatStatus(orden.estado) }}
+            </span>
+          </div>
+
+          <div class="mb-2">
+            <p class="font-medium text-gray-900 dark:text-gray-100 text-sm">{{ orden.cliente || 'Sin Cliente' }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ orden.ubicacion_trabajo || '-' }}</p>
+            <p class="text-sm font-bold text-primary-600 dark:text-primary-400 mt-1">
+              Total: {{ (orden.total_ot || 0) | currency }}
+            </p>
+          </div>
+
+          <p class="text-sm text-gray-700 dark:text-gray-200 mb-2 truncate">{{ orden.descripcion_trabajo }}</p>
+
+          <div class="grid grid-cols-2 gap-2 text-xs mb-2">
+            <div>
+              <span class="text-gray-500 dark:text-gray-400">Supervisor:</span>
+              <p class="text-gray-900 dark:text-gray-100">{{ orden.supervisor || '-' }}</p>
+            </div>
+            <div>
+              @if (orden.prioridad) {
+              <span class="text-gray-500 dark:text-gray-400">Prioridad:</span>
+              <p class="text-gray-900 dark:text-gray-100">{{ formatPriority(orden.prioridad) }}</p>
+              }
+            </div>
+            <div>
+              <span class="text-gray-500 dark:text-gray-400">Factura:</span>
+              <p class="text-gray-900 dark:text-gray-100">{{ formatInvoiceStatus(orden.estado_factura) }}</p>
+            </div>
+          </div>
+
+          <div class="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            <p>Inicio: {{ formatearFecha(orden.fecha_inicio) }}</p>
+            <p>Fin: {{ formatearFecha(orden.fecha_fin_estimada) }}</p>
+          </div>
+
+          <div class="flex border-t border-gray-200 dark:border-gray-700">
+            <button (click)="viewOrder(orden)"
+              class="flex-1 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium text-sm py-2 border-r border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              Ver
+            </button>
+            <button (click)="editOrder(orden)"
+              class="flex-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium text-sm py-2 border-r border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Editar
+            </button>
+            <button (click)="deleteOrder(orden)"
+              class="flex-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium text-sm py-2 flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Eliminar
+            </button>
+          </div>
+        </div>
+        } @empty {
+        <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+          No se encontraron órdenes que coincidan con los filtros.
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Controles de Paginación -->
+    <div
+      class="flex flex-col sm:flex-row items-center justify-between gap-3 px-3 md:px-6 py-3 md:py-4 border-t dark:border-slate-700">
+      <!-- Información de resultados -->
+      <div class="text-xs md:text-sm text-slate-600 dark:text-slate-400 text-center sm:text-left">
+        <span class="hidden sm:inline">Mostrando </span>
+        <span class="font-semibold text-slate-800 dark:text-white">{{ (paginaActual() - 1) * itemsPorPagina() + 1
+          }}</span>
+        <span class="hidden sm:inline"> a </span>
+        <span class="sm:hidden">-</span>
+        <span class="font-semibold text-slate-800 dark:text-white">{{ Math.min(paginaActual() * itemsPorPagina(),
+          ordenesFiltradas().length) }}</span>
+        <span class="hidden sm:inline"> de </span>
+        <span class="sm:hidden">/</span>
+        <span class="font-semibold text-slate-800 dark:text-white">{{ ordenesFiltradas().length }}</span>
+        <span class="hidden sm:inline"> resultados</span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+        <!-- Selector de items por página -->
+        <div class="flex items-center gap-2">
+          <label class="text-xs md:text-sm text-slate-600 dark:text-slate-400">Mostrar:</label>
+          <select [ngModel]="itemsPorPagina()" (change)="cambiarItemsPorPagina(+$any($event.target).value)"
+            class="px-2 py-1 text-xs md:text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+            <option [value]="5">5</option>
+            <option [value]="10">10</option>
+            <option [value]="25">25</option>
+            <option [value]="50">50</option>
+          </select>
+        </div>
+
+        <!-- Botones de navegación -->
+        <div class="flex items-center gap-1">
+          <button (click)="paginaAnterior()" [disabled]="paginaActual() === 1"
+            class="px-2 md:px-3 py-1.5 text-xs md:text-sm border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-600 dark:hover:bg-slate-700 dark:text-slate-300 transition">
+            <span class="hidden sm:inline">Anterior</span>
+            <span class="sm:hidden">‹</span>
+          </button>
+
+          <!-- Números de página: ocultos en mobile, visibles en tablet+ -->
+          <div class="hidden sm:flex items-center gap-1">
+            @for (pagina of paginasArray(); track pagina) {
+            @if (paginasArray().length <= 7 || pagina===1 || pagina===totalPaginas() || Math.abs(pagina -
+              paginaActual()) <=1) { <button (click)="cambiarPagina(pagina)"
+              class="px-2.5 md:px-3 py-1.5 text-xs md:text-sm border rounded-lg transition-colors"
+              [class]="pagina === paginaActual() 
+                      ? 'bg-primary-600 text-white border-primary-600' 
+                      : 'border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-700 dark:text-slate-300'">
+              {{ pagina }}
+              </button>
+              } @else if (pagina === 2 || pagina === totalPaginas() - 1) {
+              <span class="px-1 md:px-2 text-slate-500 text-sm">...</span>
+              }
+              }
+          </div>
+
+          <!-- Indicador de página actual en mobile -->
+          <div class="sm:hidden px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300">
+            {{ paginaActual() }} / {{ totalPaginas() }}
+          </div>
+
+          <button (click)="paginaSiguiente()" [disabled]="paginaActual() === totalPaginas()"
+            class="px-2 md:px-3 py-1.5 text-xs md:text-sm border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-slate-600 dark:hover:bg-slate-700 dark:text-slate-300 transition">
+            <span class="hidden sm:inline">Siguiente</span>
+            <span class="sm:hidden">›</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ============================================ -->
+  <!-- MODAL: Crear/Editar Orden de Trabajo -->
+  <!-- ============================================ -->
+  @if (showNewOrderModal()) {
+  <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+        (click)="closeNewOrderModal()"></div>
+
+      <!-- Center modal -->
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+      <div
+        class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-6xl sm:w-full">
+        <div class="max-h-[90vh] overflow-y-auto">
+          <app-work-order-create [workOrderToEdit]="selectedWorkOrder()" [preselectedQuoteId]="preselectedQuoteId()"
+            (cerrarModal)="closeNewOrderModal($event)"></app-work-order-create>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ============================================ -->
+  <!-- MODAL: Confirmar Eliminación -->
+  <!-- ============================================ -->
+  @if (showDeleteModal()) {
+  <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+        (click)="closeDeleteModal()"></div>
+
+      <!-- Center modal -->
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+      <div
+        class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div
+              class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+              <!-- Warning Icon -->
+              <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">Eliminar Orden de
+                Trabajo</h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500 dark:text-gray-300">
+                  ¿Está seguro de que desea eliminar la orden <span class="font-bold">{{ orderToDelete()?.numero_ot
+                    }}</span>? Esta acción no se puede deshacer.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" (click)="confirmDelete()"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm">
+            Eliminar
+          </button>
+          <button type="button" (click)="closeDeleteModal()"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ============================================ -->
+  <!-- MODAL: Detalle de Orden -->
+  <!-- ============================================ -->
+  @if (showDetailModal() && selectedOrderForView()) {
+  <app-work-order-detail [workOrderId]="selectedOrderForView()!.id_ot" (onClose)="closeDetailModal()"
+    (onEdit)="handleEditFromDetail($event)"></app-work-order-detail>
+  }
+
+  <!-- Modal rápido: Cotización -->
+  @if (showQuoteModal()) {
+  <div class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-2 md:p-4"
+    (click)="closeQuoteModal()">
+    <div
+      class="bg-white dark:bg-slate-800 rounded-lg shadow-2xl w-full max-w-4xl max-h-[95vh] md:max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()">
+      <!-- Header del Modal -->
+      <div
+        class="flex items-center justify-between p-4 md:p-6 border-b dark:border-slate-700 bg-primary-600 sticky top-0 z-10">
+        <h3 class="text-lg md:text-xl font-bold text-white">Detalle de Cotización</h3>
+        <button (click)="closeQuoteModal()"
+          class="p-1.5 md:p-2 text-white hover:bg-primary-700 rounded-lg transition-colors">
+          <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      @if (loadingQuote()) {
+      <div class="flex justify-center items-center p-12">
+        <svg class="animate-spin h-12 w-12 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        <span class="ml-4 text-lg text-slate-600 dark:text-slate-300">Cargando detalles...</span>
+      </div>
+      } @else if (quoteDetail()) {
+      <div class="p-6 space-y-6">
+        <!-- Información General -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Datos de la Cotización -->
+          <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-4 space-y-3">
+            <h4
+              class="font-semibold text-lg text-slate-800 dark:text-white border-b border-slate-300 dark:border-slate-600 pb-2">
+              Información de Cotización
+            </h4>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-slate-600 dark:text-slate-400">Número:</span>
+                <span class="font-semibold text-slate-800 dark:text-white">{{ quoteDetail().numero_cotizacion }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-600 dark:text-slate-400">Fecha:</span>
+                <span class="font-semibold text-slate-800 dark:text-white">{{ quoteDetail().fecha_cotizacion }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-600 dark:text-slate-400">Estado:</span>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full" [ngClass]="{
+                        'bg-green-100 text-green-800': quoteDetail().estado === 'aprobada',
+                        'bg-blue-100 text-blue-800': quoteDetail().estado === 'enviada',
+                        'bg-red-100 text-red-800': quoteDetail().estado === 'rechazada'
+                      }">
+                  {{ formatStatus(quoteDetail().estado) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos del Cliente -->
+          <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-4 space-y-3">
+            <h4
+              class="font-semibold text-lg text-slate-800 dark:text-white border-b border-slate-300 dark:border-slate-600 pb-2">
+              Información del Cliente
+            </h4>
+            <div class="space-y-2 text-sm">
+              <div>
+                <span class="text-slate-600 dark:text-slate-400 block">Nombre/Razón Social:</span>
+                <span class="font-semibold text-slate-800 dark:text-white">{{ quoteDetail().nombre_razon_social ||
+                  quoteDetail().cliente }}</span>
+              </div>
+              @if (quoteDetail().ruc_cedula) {
+              <div>
+                <span class="text-slate-600 dark:text-slate-400 block">RUC/Cédula:</span>
+                <span class="font-semibold text-slate-800 dark:text-white">{{ quoteDetail().ruc_cedula }}</span>
+              </div>
+              }
+              @if (quoteDetail().direccion) {
+              <div>
+                <span class="text-slate-600 dark:text-slate-400 block">Dirección:</span>
+                <span class="font-semibold text-slate-800 dark:text-white">{{ quoteDetail().direccion }}</span>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Items/Productos -->
+        @if (quoteDetail().items && quoteDetail().items.length > 0) {
+        <div>
+          <h4
+            class="font-semibold text-lg text-slate-800 dark:text-white mb-3 border-b border-slate-300 dark:border-slate-600 pb-2">
+            Detalle de Items
+          </h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-slate-200 dark:bg-slate-700">
+                <tr>
+                  <th class="px-4 py-2 text-left text-slate-700 dark:text-slate-300">Descripción</th>
+                  <th class="px-4 py-2 text-center text-slate-700 dark:text-slate-300">Cantidad</th>
+                  <th class="px-4 py-2 text-right text-slate-700 dark:text-slate-300">Precio Unit.</th>
+                  <th class="px-4 py-2 text-right text-slate-700 dark:text-slate-300">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of quoteDetail().items; track item.id_detalle) {
+                <tr class="border-b dark:border-slate-700">
+                  <td class="px-4 py-2 text-slate-800 dark:text-white">{{ item.descripcion }}</td>
+                  <td class="px-4 py-2 text-center text-slate-800 dark:text-white">{{ item.cantidad }}</td>
+                  <td class="px-4 py-2 text-right text-slate-800 dark:text-white">{{ item.precio_unitario | currency }}
+                  </td>
+                  <td class="px-4 py-2 text-right text-slate-800 dark:text-white">{{ item.subtotal | currency }}</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="flex justify-end mt-4">
+            <div class="space-y-2 max-w-md w-full md:w-1/3">
+              <div class="flex justify-between text-lg font-bold border-t border-slate-300 dark:border-slate-600 pt-2">
+                <span class="text-slate-800 dark:text-white">Total:</span>
+                <span class="text-primary-600 dark:text-primary-400">{{ quoteDetail().total | currency }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Footer -->
+        <div class="flex justify-end gap-2 p-4 border-t dark:border-slate-700">
+          <button (click)="closeQuoteModal()"
+            class="px-6 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 transition-colors">
+            Cerrar
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  }
+
+  <!-- Modal rápido: Proyecto -->
+  @if (showProjectModal()) {
+  <div class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-2 md:p-4"
+    (click)="closeProjectModal()">
+    <div class="bg-white dark:bg-slate-800 rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()">
+      <div
+        class="flex items-center justify-between p-4 border-b dark:border-slate-700 bg-primary-600 sticky top-0 z-10">
+        <h3 class="text-lg font-bold text-white">Detalle de Proyecto Supervisado</h3>
+        <button (click)="closeProjectModal()" class="p-1.5 text-white hover:bg-primary-700 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      @if (loadingProject()) {
+      <div class="p-6 text-center">Cargando proyecto...</div>
+      } @else if (projectDetail()) {
+      <div class="p-6 space-y-6">
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow p-6 border border-slate-200 dark:border-slate-700">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-slate-800 dark:text-white">{{ projectDetail().nombre_proyecto }}</h3>
+              <p class="text-sm text-slate-500">OT: {{ projectDetail().numero_ot }}</p>
+              @if (projectDetail().descripcion) {
+              <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">{{ projectDetail().descripcion }}</p>
+              }
+            </div>
+            <span
+              [class]="projectDetail().estado === 'ACTIVO' ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-800'"
+              class="px-3 py-1 rounded-full text-xs font-semibold">
+              {{ projectDetail().estado }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-3">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Hora Ingreso</p>
+              <p class="text-lg font-semibold text-slate-800 dark:text-white">{{ projectDetail().hora_ingreso }}</p>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-3">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Hora Salida</p>
+              <p class="text-lg font-semibold text-slate-800 dark:text-white">{{ projectDetail().hora_salida }}</p>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-3">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Personal Hoy</p>
+              <p class="text-lg font-semibold text-slate-800 dark:text-white">{{ projectDetail().personal_asignado || 0
+                }}</p>
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-700 rounded-lg p-3">
+              <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Supervisor</p>
+              <p class="text-sm font-medium text-slate-800 dark:text-white">{{ projectDetail().nombre_supervisor ||
+                'N/A' }}</p>
+            </div>
+          </div>
+
+          @if (projectDetail().cliente) {
+          <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <p class="text-sm text-slate-500 dark:text-slate-400">Cliente</p>
+            <p class="font-medium text-slate-800 dark:text-white">{{ projectDetail().cliente }}</p>
+          </div>
+          }
+
+          @if (projectDetail().direccion_trabajo) {
+          <div class="mt-2">
+            <p class="text-sm text-slate-500 dark:text-slate-400">Ubicación</p>
+            <p class="font-medium text-slate-800 dark:text-white">{{ projectDetail().direccion_trabajo }}</p>
+          </div>
+          }
+        </div>
+
+        <div class="flex justify-end gap-2 p-4 border-t dark:border-slate-700">
+          <button (click)="closeProjectModal()"
+            class="px-6 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 transition-colors">
+            Cerrar
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  }
+</div>

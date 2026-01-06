@@ -1,0 +1,94 @@
+<!-- filepath: src/components/notifications-menu/notifications-menu.component.html -->
+<!-- Template del menú de notificaciones -->
+
+<div class="notifications-menu" *ngIf="authService.isAdmin() || authService.isSupervisor()">
+  <!-- Botón de notificaciones -->
+  <button
+    class="notification-bell p-2.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all duration-200 hover:scale-105"
+    (click)="toggleDropdown()" [attr.aria-label]="'Notificaciones'">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+      <path
+        d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+    </svg>
+    <span class="badge" *ngIf="contadorPendientes > 0">
+      {{ contadorPendientes }}
+    </span>
+  </button>
+
+  <!-- Dropdown de solicitudes -->
+  <div class="dropdown-menu" [class.show]="isDropdownOpen">
+    <div class="dropdown-header">
+      <h6>{{ authService.isAdmin() ? 'Solicitudes de Edición' : 'Mis Solicitudes' }}</h6>
+      <div class="header-actions">
+        <span class="badge-count">{{ contadorPendientes }} {{ authService.isAdmin() ? 'pendientes' : 'nuevas' }}</span>
+        <button *ngIf="authService.isSupervisor() && solicitudesPendientes.length > 0" (click)="limpiarHistorial()"
+          class="btn-clear" title="Limpiar historial">
+          Limpiar
+        </button>
+      </div>
+    </div>
+
+    <div class="dropdown-divider"></div>
+
+    <!-- Lista de solicitudes -->
+    <div class="solicitudes-list" *ngIf="solicitudesPendientes.length > 0">
+      <div class="solicitud-item" *ngFor="let solicitud of solicitudesPendientes"
+        [class.aprobada]="solicitud.estado === 'aprobada'" [class.rechazada]="solicitud.estado === 'rechazada'">
+        <div class="solicitud-header">
+          <div class="supervisor-info">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+            </svg>
+            <strong>{{ authService.isAdmin() ? solicitud.nombre_supervisor : 'Tu solicitud' }}</strong>
+          </div>
+          <span class="tiempo">{{ getTiempoTranscurrido(solicitud.fecha_solicitud) }}</span>
+        </div>
+
+        <div class="solicitud-body">
+          <div class="info-row">
+            <span class="label">Tabla:</span>
+            <span class="value">{{ getNombreTabla(solicitud.tabla_objetivo) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Registro:</span>
+            <span class="value">#{{ solicitud.id_registro }}</span>
+          </div>
+          <div class="motivo">
+            <span class="label">Motivo:</span>
+            <p>{{ solicitud.motivo }}</p>
+          </div>
+          <div class="observaciones" *ngIf="solicitud.observaciones_admin">
+            <span class="label">Respuesta Admin:</span>
+            <p>{{ solicitud.observaciones_admin }}</p>
+          </div>
+        </div>
+
+        <div class="solicitud-actions" *ngIf="authService.isAdmin() && solicitud.estado === 'pendiente'">
+          <button class="btn btn-success btn-sm" (click)="aprobarSolicitud(solicitud)">
+            ✓ Aprobar
+          </button>
+          <button class="btn btn-danger btn-sm" (click)="rechazarSolicitud(solicitud)">
+            ✗ Rechazar
+          </button>
+        </div>
+
+        <div class="solicitud-status" *ngIf="!authService.isAdmin() || solicitud.estado !== 'pendiente'">
+          <span class="status-badge" [class]="solicitud.estado">
+            {{ solicitud.estado | titlecase }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje cuando no hay solicitudes -->
+    <div class="empty-state" *ngIf="solicitudesPendientes.length === 0">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 opacity-20" viewBox="0 0 20 20"
+        fill="currentColor">
+        <path fill-rule="evenodd"
+          d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v7h-2l-1 2H8l-1-2H5V5z"
+          clip-rule="evenodd" />
+      </svg>
+      <p>No hay solicitudes {{ authService.isAdmin() ? 'pendientes' : 'recientes' }}</p>
+    </div>
+  </div>
+</div>

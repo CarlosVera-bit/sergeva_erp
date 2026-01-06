@@ -1,0 +1,1059 @@
+<!-- Navegación por Tabs -->
+<div class="bg-white dark:bg-slate-800 rounded-lg shadow mb-6">
+  <nav class="flex gap-2 p-4 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+    <button (click)="vistaActual.set('dashboard')" [class.bg-primary-50]="vistaActual() === 'dashboard'"
+      [class.dark:bg-primary-900/20]="vistaActual() === 'dashboard'"
+      [class.border-primary-600]="vistaActual() === 'dashboard'"
+      [class.text-primary-700]="vistaActual() === 'dashboard'"
+      [class.dark:text-primary-400]="vistaActual() === 'dashboard'"
+      class="px-4 py-2 rounded-lg border-2 border-transparent hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2 whitespace-nowrap text-slate-700 dark:text-white">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+      Dashboard
+    </button>
+    <button (click)="vistaActual.set('asistencias')" [class.bg-primary-50]="vistaActual() === 'asistencias'"
+      [class.dark:bg-primary-900/20]="vistaActual() === 'asistencias'"
+      [class.border-primary-600]="vistaActual() === 'asistencias'"
+      [class.text-primary-700]="vistaActual() === 'asistencias'"
+      [class.dark:text-primary-400]="vistaActual() === 'asistencias'"
+      class="px-4 py-2 rounded-lg border-2 border-transparent hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2 whitespace-nowrap text-slate-700 dark:text-white">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      Control de Horas
+    </button>
+  </nav>
+</div>
+
+<!-- Dashboard Supervisor -->
+@if (vistaActual() === 'dashboard') {
+<app-dashboard-supervisor></app-dashboard-supervisor>
+}
+
+<!-- Control de Asistencias (vista original) -->
+@if (vistaActual() === 'asistencias') {
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+  <h1 class="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 dark:text-gray-100">Control de Horas y Nómina
+    Operativa</h1>
+  @if (dbService.connected()) {
+  <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+    <!-- Botón principal: Registrar Horas -->
+    <button (click)="abrirModalRegistro()"
+      style="display: flex !important; background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; padding: 0.875rem 1.5rem; border-radius: 0.625rem; font-weight: 700; font-size: 1rem; align-items: center; justify-content: center; gap: 0.75rem; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); width: 100%; border: none; cursor: pointer; transition: all 0.2s;">
+      <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      Registrar Horas
+    </button>
+
+    <!-- Botones secundarios: Exportar -->
+    @if (isAdmin()) {
+
+    <div class="flex gap-2 w-full sm:w-auto">
+      <button (click)="abrirModalExportar('excel')" [disabled]="!attendanceRecords().length"
+        style="display: flex !important; background: #16a34a; color: white; padding: 0.75rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; align-items: center; justify-content: center; gap: 0.5rem; flex: 1; border: none; cursor: pointer; box-shadow: 0 2px 4px rgba(22, 163, 74, 0.25); transition: all 0.2s;" [style.opacity]="!attendanceRecords().length ? 0.5 : 1" [style.cursor]="!attendanceRecords().length ? 'not-allowed' : 'pointer'">
+        <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Excel
+      </button>
+      <button (click)="abrirModalExportar('pdf')" [disabled]="!attendanceRecords().length"
+        style="display: flex !important; background: #dc2626; color: white; padding: 0.75rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; align-items: center; justify-content: center; gap: 0.5rem; flex: 1; border: none; cursor: pointer; box-shadow: 0 2px 4px rgba(220, 38, 38, 0.25); transition: all 0.2s;" [style.opacity]="!attendanceRecords().length ? 0.5 : 1" [style.cursor]="!attendanceRecords().length ? 'not-allowed' : 'pointer'">
+        <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+        PDF
+      </button>
+    </div>
+    }
+
+  </div>
+  }
+</div>
+
+@if (dbService.connected()) {
+<!-- Sección de Registros de Asistencia con Biometría -->
+<div class="mb-6 bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden">
+  <div class="p-4 bg-gradient-to-r from-primary-500 to-primary-600 border-b">
+    <h2 class="text-xl font-semibold text-white flex items-center gap-2">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+      Registros de Asistencia ({{ attendanceRecords().length }})
+    </h2>
+  </div>
+
+  <!-- Filtros de búsqueda -->
+  <div class="p-4 bg-slate-50 dark:bg-slate-700/30 border-b border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input 
+          type="text"
+          [value]="filtroEmpleado()"
+          (input)="filtroEmpleado.set($any($event.target).value)"
+          placeholder="Buscar empleado..."
+          class="w-full pl-10 pr-4 py-3 sm:py-2 text-base sm:text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+        />
+      </div>
+      
+      <div>
+        <button (click)="mostrarModalProyectos.set(true)"
+          class="w-full px-4 py-3 sm:py-2 text-base sm:text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-600 transition-all flex items-center justify-between gap-2">
+          <span class="truncate">{{ filtroProyecto() === 'todos' ? 'Todos los proyectos' : truncarProyecto(filtroProyecto()) }}</span>
+          <svg class="w-5 h-5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="flex items-center justify-center sm:justify-start gap-2 text-sm text-slate-600 dark:text-slate-400 lg:col-span-2 py-2 sm:py-0">
+        <span>Mostrando:</span>
+        <span class="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded font-medium">
+          {{ registrosFiltrados().length }} de {{ attendanceRecords().length }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de selección de proyecto -->
+  @if (mostrarModalProyectos()) {
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" (click)="mostrarModalProyectos.set(false)">
+      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="relative w-full sm:max-w-md bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[70vh] flex flex-col" (click)="$event.stopPropagation()">
+        <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Seleccionar Proyecto</h3>
+          <button (click)="mostrarModalProyectos.set(false)" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full">
+            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <div class="p-4 overflow-y-auto flex-1">
+          <div class="space-y-2">
+            <button 
+              (click)="seleccionarProyecto('todos')"
+              [class]="filtroProyecto() === 'todos' ? 'w-full p-3 text-left rounded-lg bg-primary-100 dark:bg-primary-900/30 border-2 border-primary-500 text-primary-700 dark:text-primary-300 font-medium' : 'w-full p-3 text-left rounded-lg bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 border-2 border-transparent'">
+              <div class="flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+                <span>Todos los proyectos</span>
+              </div>
+            </button>
+            @for (proy of proyectosEnRegistros(); track proy) {
+              <button 
+                (click)="seleccionarProyecto(proy)"
+                [class]="filtroProyecto() === proy ? 'w-full p-3 text-left rounded-lg bg-primary-100 dark:bg-primary-900/30 border-2 border-primary-500 text-primary-700 dark:text-primary-300 font-medium' : 'w-full p-3 text-left rounded-lg bg-slate-50 dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 border-2 border-transparent'">
+                <span class="line-clamp-2">{{ proy }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Pestañas: Personal Operativo / Personal de Oficina -->
+  <div class="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/30">
+    <button 
+      (click)="tabAsistenciasActivo.set('OPERATIVO')"
+      [class]="tabAsistenciasActivo() === 'OPERATIVO' 
+        ? 'flex-1 py-3 px-4 text-sm font-bold text-orange-600 dark:text-orange-400 border-b-2 border-orange-500 bg-white dark:bg-slate-800' 
+        : 'flex-1 py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
+      <div class="flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+        </svg>
+        <span>Personal Operativo</span>
+        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300">
+          {{ cantidadOperativos() }}
+        </span>
+      </div>
+    </button>
+    <button 
+      (click)="tabAsistenciasActivo.set('OFICINA')"
+      [class]="tabAsistenciasActivo() === 'OFICINA' 
+        ? 'flex-1 py-3 px-4 text-sm font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-500 bg-white dark:bg-slate-800' 
+        : 'flex-1 py-3 px-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
+      <div class="flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+        <span>Personal de Oficina</span>
+        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">
+          {{ cantidadOficina() }}
+        </span>
+      </div>
+    </button>
+  </div>
+
+  @if (registrosPorDiaActivos().length > 0) {
+  <!-- Acordeón por Días -->
+  <div class="divide-y divide-slate-200 dark:divide-slate-700">
+    @for (grupo of registrosPorDiaActivos(); track grupo.fecha) {
+    <div class="border-b border-slate-200 dark:border-slate-700">
+      <!-- Encabezado del Día -->
+      <button (click)="toggleDia(grupo.fecha)"
+        class="w-full px-4 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+        [class.bg-slate-50]="isDiaExpandido(grupo.fecha)" [class.dark:bg-slate-700/30]="isDiaExpandido(grupo.fecha)">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-primary-600 dark:text-primary-400 transition-transform"
+            [class.rotate-90]="isDiaExpandido(grupo.fecha)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+          <div class="text-left">
+            <h3 class="font-semibold text-slate-900 dark:text-white">{{ grupo.titulo }}</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              {{ grupo.registros.length }} registros
+              @if (contarRegistrosPorTipo(grupo.registros); as conteo) {
+              <span class="ml-2">
+                <span class="text-green-600 dark:text-green-400">↓ {{ conteo.entradas }} entradas</span>
+                <span class="ml-2 text-orange-600 dark:text-orange-400">↑ {{ conteo.salidas }} salidas</span>
+              </span>
+              }
+            </p>
+          </div>
+        </div>
+        @if (grupo.esHoy) {
+        <span
+          class="px-2 py-1 text-xs font-semibold bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200 rounded-full">HOY</span>
+        }
+      </button>
+
+      <!-- Contenido Colapsable -->
+      @if (isDiaExpandido(grupo.fecha)) {
+      <!-- Vista Desktop - Tabla -->
+      <div class="overflow-x-auto hidden md:block">
+        <table class="w-full text-sm">
+          <thead class="text-xs uppercase bg-slate-100 dark:bg-slate-700">
+            <tr>
+              <th class="px-4 py-3 text-left">Foto</th>
+              <th class="px-4 py-3 text-left">Empleado</th>
+              <th class="px-4 py-3 text-left">Tipo</th>
+              <th class="px-4 py-3 text-left">Hora</th>
+              <th class="px-4 py-3 text-left">Ubicación</th>
+              <th class="px-4 py-3 text-left">Score</th>
+              <th class="px-4 py-3 text-left">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+            @for (record of grupo.registros; track record.id) {
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+              <td class="px-4 py-3">
+                <img [src]="record.photo" alt="Foto"
+                  class="w-12 h-12 rounded-lg object-cover border-2 border-slate-200 dark:border-slate-600" />
+              </td>
+              <td class="px-4 py-3">
+                <div>
+                  <p class="font-semibold text-slate-800 dark:text-white">{{ $any(record).employeeName ||
+                    record.employeeId }}</p>
+                  <p class="text-xs text-slate-500">{{ $any(record).employeeRole || 'N/A' }}</p>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <span class="px-2 py-1 rounded-full text-xs font-semibold" [class]="getTypeClass(record.type)">{{
+                  record.type }}</span>
+              </td>
+              <td class="px-4 py-3">
+                <p class="text-slate-800 dark:text-white font-semibold">{{ record.timestamp | date:'shortTime' }}</p>
+              </td>
+              <td class="px-4 py-3">
+                <div class="max-w-xs truncate">
+                  <p class="text-xs text-slate-600 dark:text-slate-400 truncate">{{ record.geolocation.address }}</p>
+                  <p class="text-xs font-mono text-slate-500">{{ record.geolocation.latitude | number:'1.4-4' }}, {{
+                    record.geolocation.longitude | number:'1.4-4' }}</p>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-16 bg-slate-200 dark:bg-slate-600 rounded-full h-2">
+                    <div class="h-2 rounded-full" [style.width.%]="record.faceMatchScore"
+                      [class]="record.faceMatchScore >= 85 ? 'bg-green-500' : 'bg-orange-500'"></div>
+                  </div>
+                  <span class="text-xs font-semibold">{{ record.faceMatchScore }}%</span>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <button (click)="verDetalle(record)"
+                  class="px-3 py-1.5 bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm hover:shadow-md flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Ver Info
+                </button>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Vista Mobile - Cards Mejoradas -->
+      <div class="mobile-cards-container md:hidden">
+        @for (record of grupo.registros; track record.id) {
+        <div class="mobile-card">
+          <div class="mobile-card-header">
+            <div class="flex items-center gap-3">
+              <img [src]="record.photo" alt="Foto" class="mobile-photo" />
+              <div>
+                <p class="font-bold text-slate-900 dark:text-white text-base">{{ $any(record).employeeName ||
+                  record.employeeId }}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ $any(record).employeeRole || 'N/A' }}
+                </p>
+              </div>
+            </div>
+            <span class="mobile-badge" [class]="getTypeClass(record.type)">{{ record.type }}</span>
+          </div>
+          <div class="mobile-card-body">
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Hora
+              </span>
+              <span class="mobile-card-value font-bold text-primary-600 dark:text-primary-400">{{ record.timestamp |
+                date:'shortTime' }}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Ubicación
+              </span>
+              <span class="mobile-card-value text-xs max-w-[180px] truncate">{{ record.geolocation.address }}</span>
+            </div>
+            <div class="mobile-card-row">
+              <span class="mobile-card-label">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Verificación
+              </span>
+              <div class="flex items-center gap-2">
+                <div class="w-20 bg-slate-200 dark:bg-slate-600 rounded-full h-2 overflow-hidden">
+                  <div class="h-2 rounded-full transition-all duration-500" [style.width.%]="record.faceMatchScore"
+                    [class]="record.faceMatchScore >= 85 ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gradient-to-r from-orange-400 to-orange-500'">
+                  </div>
+                </div>
+                <span class="text-xs font-bold"
+                  [class]="record.faceMatchScore >= 85 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'">{{
+                  record.faceMatchScore }}%</span>
+              </div>
+            </div>
+            <!-- Botón Ver Información (solo mobile) -->
+            <button (click)="verDetalle(record)"
+              style="display: flex !important; background: linear-gradient(to right, #22c55e, #16a34a); color: white; width: 100%; margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.875rem; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.25);">
+              <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Ver Información
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+    }
+  </div>
+  } @else {
+  <div class="p-8 text-center text-slate-500 dark:text-slate-400">
+    <svg class="w-16 h-16 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+    </svg>
+    @if (tabAsistenciasActivo() === 'OPERATIVO') {
+      <p>No hay registros de personal operativo</p>
+      <p class="text-sm mt-1">Los registros con OT asignada aparecerán aquí</p>
+    } @else {
+      <p>No hay registros de personal de oficina</p>
+      <p class="text-sm mt-1">Los registros sin OT asignada aparecerán aquí</p>
+    }
+  </div>
+  }
+</div>
+
+} @else {
+<div class="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 text-center">
+  <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+    <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+  </svg>
+  <h3 class="mt-2 text-lg font-medium text-gray-900 dark:text-white">Conexión Requerida</h3>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Por favor, conéctese a la base de datos en la sección de
+    'Ajustes de BD' para ver el control de horas.</p>
+</div>
+}
+}
+
+<!-- Modal de flujo 3 pasos: Biometría → Geolocalización → Confirmación -->
+@if (showModal()) {
+<div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
+  (click)="cerrarModal()">
+  <div style="background: white; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-width: 42rem; width: 100%; margin: 1rem auto; max-height: 90vh; display: flex; flex-direction: column;" class="dark:bg-slate-800"
+    (click)="$event.stopPropagation()">
+    <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;" class="dark:border-slate-700">
+      <h3 style="font-size: 1.125rem; font-weight: 600;">Registro de Asistencia</h3>
+      <button (click)="cerrarModal()"
+        style="padding: 0.5rem 1rem; font-size: 1rem; background: #e2e8f0; border-radius: 0.375rem; cursor: pointer; border: none; font-weight: 500; display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; line-height: 1;" class="dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600">✕</button>
+    </div>
+    <div style="padding: 1rem; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 0.75rem;" class="dark:bg-slate-800">
+      <div class="flex items-center gap-2 text-sm">
+        <span [class]="step()===1 ? 'font-semibold text-primary-600' : 'text-slate-500'">1. Biometría</span>
+        <span>›</span>
+        <span [class]="step()===2 ? 'font-semibold text-primary-600' : 'text-slate-500'">2. Geolocalización</span>
+        <span>›</span>
+        <span [class]="step()===3 ? 'font-semibold text-primary-600' : 'text-slate-500'">3. Confirmación</span>
+      </div>
+
+      @if (step() === 1) {
+      <!-- Si tiene entrada activa, mostrar mensaje y solo permitir SALIDA -->
+      @if (entradaActiva()) {
+      <div
+        class="p-4 bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-300 dark:border-orange-700 rounded-lg mb-4">
+        <div class="flex items-start gap-3">
+          <svg class="w-6 h-6 text-orange-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p class="font-semibold text-orange-800 dark:text-orange-200">Tienes una entrada activa</p>
+            @if (entradaActiva()?.nombre_proyecto) {
+              <p class="text-sm text-orange-700 dark:text-orange-300 mt-1">
+                Proyecto: <strong>{{ entradaActiva()?.nombre_proyecto }}</strong>
+              </p>
+            } @else {
+              <p class="text-sm text-orange-700 dark:text-orange-300 mt-1">
+                <strong>Jornada de Oficina</strong>
+              </p>
+            }
+            <p class="text-xs text-orange-600 dark:text-orange-400 mt-1">
+              Entrada registrada: {{ entradaActiva()?.fecha_hora | slice:11:16 }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tipo de registro fijo en SALIDA -->
+      <div class="p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
+        <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-2">
+          Tipo de Registro
+        </label>
+        <div class="flex items-center gap-2 px-4 py-3 bg-red-500 text-white rounded-lg font-semibold">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          SALIDA - {{ entradaActiva()?.nombre_proyecto || 'Jornada de Oficina' }}
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+          @if (entradaActiva()?.nombre_proyecto) {
+            Debes registrar tu salida antes de poder entrar a otro proyecto.
+          } @else {
+            Registra tu salida para finalizar tu jornada de oficina.
+          }
+        </p>
+      </div>
+      } @else if (esUsuarioOficina()) {
+      <!-- PERSONAL DE OFICINA SIN ENTRADA ACTIVA: No necesita seleccionar OT -->
+      <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-lg mb-4">
+        <div class="flex items-start gap-3">
+          <svg class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <div>
+            <p class="font-semibold text-blue-800 dark:text-blue-200">Personal de Oficina</p>
+            <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
+              Tu registro de asistencia no requiere asignación a una Orden de Trabajo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector ENTRADA/SALIDA para Personal de Oficina -->
+      <div class="p-3 bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-lg">
+        <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-2">
+          <svg class="w-4 h-4 inline mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Tipo de Registro <span class="text-red-500">*</span>
+        </label>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" (click)="tipoRegistroSeleccionado = 'ENTRADA'"
+            [class]="tipoRegistroSeleccionado === 'ENTRADA' 
+              ? 'px-3 py-3 border-2 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm bg-green-500 text-white border-green-600' 
+              : 'px-3 py-3 border-2 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm bg-white dark:bg-slate-700 border-green-300 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20'">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+            ENTRADA
+          </button>
+          <button type="button" (click)="tipoRegistroSeleccionado = 'SALIDA'"
+            [class]="tipoRegistroSeleccionado === 'SALIDA' 
+              ? 'px-3 py-3 border-2 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm bg-red-500 text-white border-red-600' 
+              : 'px-3 py-3 border-2 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm bg-white dark:bg-slate-700 border-red-300 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            SALIDA
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+          Selecciona si estás iniciando o finalizando tu jornada en la oficina.
+        </p>
+      </div>
+      } @else {
+      <!-- PERSONAL OPERATIVO: Selector de Proyecto (solo si NO tiene entrada activa) -->
+      @if (proyectosActivos().length > 0) {
+      <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-lg">
+        <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-2">
+          <svg class="w-4 h-4 inline mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Selecciona Proyecto <span class="text-red-500">*</span>
+        </label>
+        <select [(ngModel)]="proyectoSeleccionado"
+          class="w-full px-3 py-2 border-2 border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white text-sm"
+          required>
+          <option [value]="null" disabled selected>-- Selecciona un proyecto --</option>
+          @for (proyecto of proyectosActivos(); track proyecto.id_proyecto) {
+          <option [value]="proyecto.id_proyecto">
+            📋 {{ proyecto.nombre_proyecto }} ({{ proyecto.numero_ot }})
+          </option>
+          }
+        </select>
+      </div>
+
+      <!-- Selector ENTRADA/SALIDA (solo si NO tiene entrada activa) -->
+      <div class="p-3 bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-lg">
+        <label class="block text-sm font-semibold text-slate-800 dark:text-white mb-2">
+          <svg class="w-4 h-4 inline mr-1 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Tipo de Registro <span class="text-red-500">*</span>
+        </label>
+        <div class="grid grid-cols-1 gap-2">
+          <button type="button" (click)="tipoRegistroSeleccionado = 'ENTRADA'"
+            class="px-3 py-3 border-2 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm bg-white dark:bg-slate-700 border-green-500 text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+            ENTRADA - Iniciar jornada en este proyecto
+          </button>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+          No tienes ninguna entrada activa. Selecciona ENTRADA para iniciar tu jornada.
+        </p>
+      </div>
+      } @else {
+      <div class="p-3 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-lg">
+        <p class="text-sm text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          No hay proyectos disponibles. Por favor contacta a tu supervisor.
+        </p>
+      </div>
+      }
+      }
+
+      <app-biometric-capture (dataCaptured)="onBiometricCaptured($event)"></app-biometric-capture>
+      }
+      @if (step() === 2) {
+      <app-geolocation-capture (locationCaptured)="onLocationCaptured($event)"></app-geolocation-capture>
+      }
+      @if (step() === 3) {
+      <app-attendance-confirmation [record]="currentRecord()"></app-attendance-confirmation>
+      }
+    </div>
+
+    <div
+      style="padding: 1rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; flex-shrink: 0; gap: 0.75rem; flex-wrap: wrap;" class="dark:border-slate-700 dark:bg-slate-800 bg-slate-50">
+      <button (click)="anteriorPaso()" [disabled]="step()===1"
+        style="padding: 0.625rem 1rem; background: #e2e8f0; border-radius: 0.5rem; border: none; cursor: pointer; font-weight: 600; font-size: 0.875rem; flex: 1; min-width: 100px; transition: all 0.2s;" class="dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600" [style.opacity]="step()===1 ? 0.5 : 1" [style.cursor]="step()===1 ? 'not-allowed' : 'pointer'">
+        ← Atrás
+      </button>
+      <div style="display: flex; gap: 0.75rem; flex: 1;">
+        <button (click)="siguientePaso()" [disabled]="step()===3"
+          style="padding: 0.625rem 1rem; background: #2563eb; color: white; border-radius: 0.5rem; border: none; cursor: pointer; font-weight: 600; font-size: 0.875rem; flex: 1; transition: all 0.2s;" class="hover:bg-blue-700" [style.opacity]="step()===3 ? 0.5 : 1" [style.cursor]="step()===3 ? 'not-allowed' : 'pointer'">
+          Siguiente →
+        </button>
+        @if (step()===3) {
+        <button (click)="confirmarRegistro()" [disabled]="isSaving()"
+          style="padding: 0.625rem 1rem; background: #16a34a; color: white; border-radius: 0.5rem; border: none; cursor: pointer; font-weight: 600; font-size: 0.875rem; flex: 1; transition: all 0.2s;" class="hover:bg-green-700" [style.opacity]="isSaving() ? 0.7 : 1" [style.cursor]="isSaving() ? 'wait' : 'pointer'">
+          <span class="flex items-center gap-2">
+            @if (isSaving()) {
+            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            Guardando...
+            } @else {
+            Confirmar y Guardar
+            }
+          </span>
+        </button>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Modal de Exportación con Selección de Período (FUERA del modal de registro) -->
+@if (mostrarModalExportar()) {
+<div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="cerrarModalExportar()">
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full animate-fade-in"
+    (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="p-5 border-b border-slate-200 dark:border-slate-700">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+          [class.bg-green-100]="tipoExportacion() === 'excel'"
+          [class.dark:bg-green-900/30]="tipoExportacion() === 'excel'" [class.bg-red-100]="tipoExportacion() === 'pdf'"
+          [class.dark:bg-red-900/30]="tipoExportacion() === 'pdf'">
+          @if (tipoExportacion() === 'excel') {
+          <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          } @else {
+          <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+          }
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-slate-800 dark:text-white">
+            Exportar a {{ tipoExportacion() === 'excel' ? 'Excel' : 'PDF' }}
+          </h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Seleccione el período a exportar</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido -->
+    <div class="p-5 space-y-4">
+      <!-- Fecha Inicio -->
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          Fecha de inicio
+        </label>
+        <input type="date" [ngModel]="exportFechaInicio()" (ngModelChange)="exportFechaInicio.set($event)"
+          class="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+      </div>
+
+      <!-- Fecha Fin -->
+      <div>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+          Fecha de fin
+        </label>
+        <input type="date" [ngModel]="exportFechaFin()" (ngModelChange)="exportFechaFin.set($event)"
+          class="w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+      </div>
+
+      <!-- Atajos de período -->
+      <div class="flex flex-wrap gap-2">
+        <button (click)="setRangoRapido('hoy')"
+          class="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+          Hoy
+        </button>
+        <button (click)="setRangoRapido('semana')"
+          class="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+          Esta semana
+        </button>
+        <button (click)="setRangoRapido('mes')"
+          class="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+          Este mes
+        </button>
+        <button (click)="setRangoRapido('todo')"
+          class="px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+          Todo
+        </button>
+      </div>
+
+      <!-- Resumen de registros -->
+      <div class="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+        <p class="text-sm text-slate-600 dark:text-slate-300">
+          <span class="font-semibold">{{ contarRegistrosEnRango() }}</span> registros encontrados en el período
+          seleccionado
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-5 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
+      <button (click)="cerrarModalExportar()"
+        class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
+        Cancelar
+      </button>
+      <button (click)="ejecutarExportacion()" [disabled]="exportando() || contarRegistrosEnRango() === 0"
+        class="px-4 py-2 rounded-lg text-white flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        [class.bg-green-600]="tipoExportacion() === 'excel'" [class.hover:bg-green-700]="tipoExportacion() === 'excel'"
+        [class.bg-red-600]="tipoExportacion() === 'pdf'" [class.hover:bg-red-700]="tipoExportacion() === 'pdf'">
+        @if (exportando()) {
+        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        Exportando...
+        } @else {
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Descargar {{ tipoExportacion() === 'excel' ? 'Excel' : 'PDF' }}
+        }
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Modal de confirmación de descarga de términos -->
+@if (showTermsConfirmModal()) {
+<div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+      (click)="closeTermsConfirmModal()"></div>
+
+    <!-- Center modal -->
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <div
+      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-900 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-indigo-600 dark:text-indigo-300" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
+              Términos y Condiciones
+            </h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500 dark:text-gray-300">
+                ¿Desea descargar el PDF de los <span class="font-bold">Términos y Condiciones de Privacidad</span>?
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button type="button"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+          (click)="confirmDownloadTerms()">
+          Descargar
+        </button>
+        <button type="button"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+          (click)="closeTermsConfirmModal()">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Modal de Detalles del Registro -->
+@if (showDetailModal() && selectedRecord()) {
+  <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto"
+    (click)="cerrarDetailModal()">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-2xl w-full my-8 max-h-[90vh] flex flex-col"
+      (click)="$event.stopPropagation()">
+      
+      <!-- Header -->
+      <div class="p-4 md:p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white font-bold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg md:text-xl font-bold text-slate-800 dark:text-white">Detalle del Registro</h3>
+            <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">
+              {{ selectedRecord()?.timestamp | date:'long' }}
+            </p>
+          </div>
+        </div>
+        <button (click)="cerrarDetailModal()" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenido -->
+      <div class="p-4 md:p-6 space-y-6 overflow-y-auto flex-1">
+        <!-- Foto del Empleado -->
+        @if (selectedRecord()?.photo) {
+          <div class="flex flex-col items-center">
+            <img [src]="selectedRecord()?.photo" alt="Foto del empleado"
+              class="w-24 h-24 md:w-32 md:h-32 rounded-lg object-cover border-4 border-primary-200 dark:border-primary-700 shadow-lg" />
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Foto de verificación</p>
+          </div>
+        }
+
+        <!-- Información Personal -->
+        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 space-y-3">
+          <h4 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Información del Registro
+          </h4>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Tipo de Registro -->
+            <div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Tipo</p>
+              <div class="mt-1 flex items-center gap-2">
+                <span [class]="getTypeClass(selectedRecord()?.type!)" class="inline-block px-2.5 py-1.5 rounded-full text-xs font-bold text-white">
+                  {{ selectedRecord()?.type }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Hora Exacta -->
+            <div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Hora Registrada</p>
+              <p class="text-sm md:text-base font-bold text-primary-600 dark:text-primary-400 mt-1">
+                {{ selectedRecord()?.timestamp | date:'HH:mm:ss' }}
+              </p>
+            </div>
+
+            <!-- Fecha -->
+            <div class="col-span-2">
+              <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Fecha</p>
+              <p class="text-sm md:text-base font-semibold text-slate-800 dark:text-white mt-1">
+                {{ selectedRecord()?.timestamp | date:'EEEE, d MMMM yyyy' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del Proyecto y OT -->
+        @if (selectedRecord()?.ot || selectedRecord()?.projectName || selectedRecord()?.descripcion) {
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-3">
+            <h4 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              Información del Proyecto
+            </h4>
+            
+            <div class="space-y-3">
+              <!-- OT -->
+              @if (selectedRecord()?.ot) {
+                <div>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Orden de Trabajo (OT)</p>
+                  <p class="text-sm md:text-base font-bold text-blue-600 dark:text-blue-400 mt-1">
+                    {{ selectedRecord()?.ot }}
+                  </p>
+                </div>
+              }
+
+              <!-- Nombre del Proyecto -->
+              @if (selectedRecord()?.projectName) {
+                <div>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Proyecto</p>
+                  <p class="text-sm md:text-base font-semibold text-slate-800 dark:text-white mt-1">
+                    {{ selectedRecord()?.projectName }}
+                  </p>
+                </div>
+              }
+
+              <!-- Descripción -->
+              @if (selectedRecord()?.descripcion) {
+                <div>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Descripción</p>
+                  <p class="text-sm text-slate-700 dark:text-slate-300 mt-1 leading-relaxed">
+                    {{ selectedRecord()?.descripcion }}
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Información de Ubicación -->
+        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 space-y-3">
+          <h4 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Ubicación
+          </h4>
+
+          <div class="space-y-2">
+            <div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Dirección</p>
+              <p class="text-sm font-medium text-slate-800 dark:text-slate-200 mt-1">
+                {{ selectedRecord()?.geolocation?.address || 'No disponible' }}
+              </p>
+            </div>
+
+            <!-- Mapa interactivo -->
+            @if (selectedRecord()?.geolocation?.latitude && selectedRecord()?.geolocation?.longitude) {
+              <div class="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600 shadow-sm mt-3">
+                <iframe 
+                  [src]="getMapUrlForRecord()"
+                  style="width: 100%; height: 200px; border: none;"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  title="Ubicación en mapa">
+                </iframe>
+              </div>
+              
+              <!-- Link para abrir en Google Maps -->
+              <a [href]="getGoogleMapsLinkForRecord()" target="_blank" rel="noopener noreferrer"
+                class="flex items-center justify-center gap-2 w-full p-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors text-sm font-medium mt-2">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                Ver en Google Maps
+              </a>
+            }
+
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Latitud</p>
+                <p class="text-xs font-mono text-slate-700 dark:text-slate-300 mt-1">
+                  {{ selectedRecord()?.geolocation?.latitude | number:'1.6-6' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Longitud</p>
+                <p class="text-xs font-mono text-slate-700 dark:text-slate-300 mt-1">
+                  {{ selectedRecord()?.geolocation?.longitude | number:'1.6-6' }}
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Precisión</p>
+                <p class="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1">
+                  {{ selectedRecord()?.geolocation?.accuracy | number:'1.2-2' }} m
+                </p>
+              </div>
+              <div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Altitud</p>
+                <p class="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1">
+                  {{ selectedRecord()?.geolocation?.altitude | number:'1.2-2' }} m
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de Verificación Biométrica -->
+        <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 space-y-3">
+          <h4 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Verificación Biométrica
+          </h4>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Coincidencia Facial</p>
+              <span class="px-2.5 py-1 text-xs font-bold rounded-full"
+                [class]="selectedRecord()?.faceMatchScore! >= 85 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'">
+                {{ selectedRecord()?.faceMatchScore }}%
+              </span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-3 overflow-hidden">
+              <div class="h-3 rounded-full transition-all duration-500" [style.width.%]="selectedRecord()?.faceMatchScore"
+                [class]="selectedRecord()?.faceMatchScore! >= 85 ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gradient-to-r from-orange-400 to-orange-500'">
+              </div>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+              {{ selectedRecord()?.faceMatchScore! >= 85 ? '✓ Verificación exitosa' : '⚠ Verificación parcial' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Información Adicional -->
+        @if (selectedRecord()?.deviceInfo) {
+          <div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 space-y-3">
+            <h4 class="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+              <svg class="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 20h8a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              Dispositivo
+            </h4>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <p class="text-slate-500 dark:text-slate-400 uppercase font-semibold">Modelo</p>
+                <p class="text-slate-700 dark:text-slate-300 mt-1">{{ selectedRecord()?.deviceInfo?.model || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-slate-500 dark:text-slate-400 uppercase font-semibold">OS</p>
+                <p class="text-slate-700 dark:text-slate-300 mt-1">{{ selectedRecord()?.deviceInfo?.os || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 md:p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
+        <button (click)="cerrarDetailModal()"
+          class="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modales de Préstamos -->
+<app-loan-request-modal #loanRequestModal (prestamoCreado)="onPrestamoCreado($event)" (cerrado)="onLoanModalCerrado()">
+</app-loan-request-modal>
+
+<app-loan-confirm-modal #loanConfirmModal (confirmado)="onPrestamoConfirmado()" (rechazado)="onPrestamoRechazado()"
+  (cerrado)="onLoanConfirmModalCerrado()">
+</app-loan-confirm-modal>
